@@ -1,0 +1,5 @@
+{
+    "files": [
+        { "name": "paddle.texture", "path": "./assets/compiled/paddle.texture" },
+        { "name": "paddle.clut", "path": "./assets/compiled/paddle.clut" }    ]
+}

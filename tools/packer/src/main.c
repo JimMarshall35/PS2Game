@@ -104,6 +104,7 @@ static bool AddPakFileEntry(const char* name, const char* filePath)
         gPakFileListTail = pEntry;
     }
     gPakFileListCount++;
+    return false;
 }
 
 static VECTOR(u8) Addu16ToByteArray(VECTOR(u8) vec, u16 val)
@@ -179,6 +180,7 @@ static VECTOR(u8) AddPakFileContents(VECTOR(u8) vec)
         }
         pEntry = pEntry->pNext;
     }
+    return vec;
 }
 
 static void PrintHelp()
@@ -273,9 +275,9 @@ int main(int argc, const char** argv)
         }
 
         const char* pathStr = path->valuestring;
-        const char* nameStr = path->valuestring;
+        const char* nameStr = name->valuestring;
         
-        AddPakFileEntry(nameStr, pathStr);
+        if(AddPakFileEntry(nameStr, pathStr)) goto error;
 
         i++;
     }

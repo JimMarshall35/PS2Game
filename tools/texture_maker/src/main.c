@@ -342,7 +342,7 @@ int main(int argc, const char** argv)
     }
 
     u32 width, height, channels;
-    u8* rawData = stbi_load(argv[1], (int*)&width, (int*)&height, (int*)&channels, 4);
+    u8* rawData = stbi_load(gArgs.inPNGPath, (int*)&width, (int*)&height, (int*)&channels, 4);
 
     if (rawData == NULL)
     {
