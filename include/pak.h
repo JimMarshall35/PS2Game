@@ -1,6 +1,7 @@
 #ifndef PAK_H
 #define PAK_H
 #include "IntTypes.h"
+#include <stdbool.h>
 
 #define MAX_PAK_FILE_NAME_LEN 31
 
@@ -25,5 +26,12 @@ struct PakFileHeaderEntry
     u32 size;
 };
 
+void Pk_CloseCurrentPakFile();
+
+bool Pk_OpenPakFile(const char* path);
+
+u32 Pk_GetPakFileEntrySize(const char* packedFileName);
+
+bool Pk_LoadPakFileEntry(const char* packedFileName, char* outputBuffer, u32 outputBufferSize);
 
 #endif
