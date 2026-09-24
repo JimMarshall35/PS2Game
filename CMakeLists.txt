@@ -5,10 +5,13 @@ project(PS2Game C)
 set(PLATFORM "LINUX" CACHE STRING "Target platform (LINUX or PS2)")
 set_property(CACHE PLATFORM PROPERTY STRINGS LINUX PS2)
 
-add_subdirectory(src/external/cglm/ EXCLUDE_FROM_ALL)
 
 
 set(PLATFORM_SPECIFIC_SOURCES)
+set(PLATFORM_SPECIFIC_INCLUDES)
+set(PLATFORM_SPECIFIC_LIBS)
+set(PLATFORM_SPECIFIC_LINK_DIRECTORIES)
+set(PLATFORM_SPECIFIC_COMPILE_DEFS)
 
 if(PLATFORM STREQUAL "PS2")
     set(CMAKE_EXECUTABLE_SUFFIX ".elf")
@@ -28,28 +31,28 @@ if(PLATFORM STREQUAL "PS2")
     )
 
     # ps2 sdk includes
-    target_include_directories(Game PRIVATE
+    list(APPEND PLATFORM_SPECIFIC_INCLUDES
         "$ENV{PS2SDK}/ee/include"
         "$ENV{PS2SDK}/ee/math3d/include"
         "$ENV{PS2SDK}/common/include"
     )
 
     # ps2 sdk libraries
-    target_link_directories(Game PRIVATE
+    list(APPEND PLATFORM_SPECIFIC_LINK_DIRECTORIES
         "$ENV{PS2SDK}/ee/lib"
     )
 
-    target_compile_definitions(Game PRIVATE
+    list(APPEND PLATFORM_SPECIFIC_COMPILE_DEFS
         _EE
     )
 
-    target_compile_options(Game PRIVATE
-        -G0
-        -O2
-        -Wall
-    )
+    # target_compile_options(Game PRIVATE
+    #     -G0
+    #     -O2
+    #     -Wall
+    # )
 
-    target_link_libraries(Game PRIVATE
+    list(APPEND PLATFORM_SPECIFIC_LIBS
         kernel
         packet
         packet2
@@ -66,17 +69,44 @@ if(PLATFORM STREQUAL "PS2")
 elseif(PLATFORM STREQUAL "LINUX")
     list(APPEND PLATFORM_SPECIFIC_SOURCES src/linux/OpenGLRenderer.c)
     list(APPEND PLATFORM_SPECIFIC_SOURCES src/linux/GLFWPlatform.c)
+    list(APPEND PLATFORM_SPECIFIC_SOURCES src/vendor/glad/src/glad.c)
+    list(APPEND PLATFORM_SPECIFIC_INCLUDES src/vendor/glad/include)
+    list(APPEND PLATFORM_SPECIFIC_LIBS cglm_headers)
 
     find_package(glfw3 REQUIRED)
-    target_link_libraries(Game PUBLIC glfw)
+    list(APPEND PLATFORM_SPECIFIC_LIBS glfw)
+    add_subdirectory(src/vendor/cglm-0.9.6/ EXCLUDE_FROM_ALL)
 
 endif()
 
 add_executable(Game
-    src/pak.c
+    src/engine/pak.c
+    src/engine/Entity.c
+    src/engine/FixedSizeObjectPool.c
+    src/engine/Log.c
+    src/engine/Memory.c
+    src/engine/StackAllocator.c
+    src/engine/Transform.c
+
     src/main.c
+
     ${PLATFORM_SPECIFIC_SOURCES}
 )
 
-target_link_libraries(${LIBRARY_NAME} PRIVATE
-  cglm_headers)
+target_include_directories(Game PRIVATE
+    include
+    ${PLATFORM_SPECIFIC_INCLUDES}
+)
+
+
+target_link_libraries(Game PRIVATE
+  m
+  ${PLATFORM_SPECIFIC_LIBS})
+
+target_link_directories(Game PRIVATE
+   ${PLATFORM_SPECIFIC_LINK_DIRECTORIES}
+)
+
+target_compile_definitions(Game PRIVATE
+    ${PLATFORM_SPECIFIC_COMPILE_DEFS}
+)
