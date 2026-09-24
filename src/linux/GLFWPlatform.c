@@ -15,6 +15,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////// First Party Includes
 
 #include "Platform.h"
+#include "Log.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////// Typedefs
 
@@ -139,4 +140,9 @@ bool Platform_ShouldWindowClose()
 {
     bool b = glfwWindowShouldClose(gWindow);
     return b;
+}
+
+void Platform_SwapBuffers()
+{
+    glfwSwapBuffers(gWindow);
 }

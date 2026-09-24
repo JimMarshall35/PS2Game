@@ -11,4 +11,6 @@ int Platform_Init();
 
 bool Platform_ShouldWindowClose();
 
+void Platform_SwapBuffers();
+
 #endif

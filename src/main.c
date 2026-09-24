@@ -58,6 +58,8 @@ int main(int argc, const char** argv)
         double alpha = accumulator / dt; // fraction into current step, 0..1
         Render(alpha);
 
+        Platform_SwapBuffers();
+
         Platform_PollInput(); // where you put this matters — see below
     }
     
