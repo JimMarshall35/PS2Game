@@ -66,6 +66,7 @@ struct Args
     enum OutputType outputType;
     enum CLUTStorageFormat clutStorageFormat;
     float ditherLevel;
+    bool bPC;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////// Private Globals
@@ -76,7 +77,8 @@ static struct Args gArgs = {
     .outColourLUT = "out.colourLUT",
     .outputType = PSMT8,
     .clutStorageFormat = PSMCT32,
-    .ditherLevel = 1.0
+    .ditherLevel = 1.0,
+    .bPC = false
 };
 
 static const i32 PSMT8_BlockLayout[32] =
@@ -143,6 +145,7 @@ static void PrintHelp()
     "--4bit : quantize image to 16 colours and generate a 4bpp texture (8bpp is default).\n"
     "--PSMCT16 : output PSMCT16 format CLUT (PSMCT32 is default).\n"
     "--PSMCT16S : output PSMCT16S format CLUT (PSMCT32 is default).\n"
+    "--PC: output a basic RGBA 4 byte per pixel, row major format for PC, but still quantize the image as if it was a ps2 texture\n"
     "Note: texures need to be powers of 2 in size, this tool will exit with a non zero exit code if they're not.\n"
     ;
     printf("%s", helpMsg);
@@ -339,6 +342,11 @@ int main(int argc, const char** argv)
                 printf("No argument supplied for output file");
             }
         }
+        else if((strcmp(argv[i], "--PC") == 0))
+        {
+            gArgs.bPC = true;
+        }
+
     }
 
     u32 width, height, channels;
@@ -391,10 +399,38 @@ int main(int argc, const char** argv)
     liq_write_remapped_image(pQuantRes, pInputImage, pRaw8bitPixels, pixelsSize);
     const liq_palette* pPalette = liq_get_palette(pQuantRes);
 
+    if(gArgs.bPC)
+    {
+        // Make a file of this format:
+        // u32    | u32    | u32 sized pixels, rgba
+        // width  | height | pixel data
+
+        size_t filesize = sizeof(u32) * 2 + (width * height * 4);
+        u8* pOut = malloc(filesize);
+        u32* pWrite = pOut;
+        *pWrite++ = width;
+        *pWrite++ = height;
+        u8* pByteWrite = (u8*)pWrite;
+        for(int i=0; i < width * height; i++)
+        {
+            liq_color c =  pPalette->entries[pRaw8bitPixels[i]];
+            *pByteWrite++ = c.r;
+            *pByteWrite++ = c.g;
+            *pByteWrite++ = c.b;
+            *pByteWrite++ = c.a;
+        }
+        FILE* pF = fopen(gArgs.outPath, "w");
+        fwrite(pOut, filesize, 1, pF);
+        fclose(pF);
+        free(pOut);
+        goto cleanup;
+    }
+
     WritePaletteFile(pPalette);
 
     WriteTextureFile(pRaw8bitPixels, width, height);
 
+cleanup:
     stbi_image_free(rawData);
 
 
