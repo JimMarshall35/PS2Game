@@ -74,7 +74,9 @@ def get_material_data(mat):
         data["color"] = tuple(mat.diffuse_color)
     return data
 
-def do_export(context, directory):
+def do_export(context=None, directory="./", platform="PC", pak_file_json_path="pak.json"):
+    if context == None:
+        context = bpy.context
     meshes = {}
     materials = {}
     mesh_instances = []
@@ -106,7 +108,6 @@ def do_export(context, directory):
     print(f"meshes: {meshes}\n\n")
     print(f"materials: {materials}\n\n")
     print(f"mesh_instances: {mesh_instances}\n\n")
-            
 
 
 class EXPORT_OT_minimal_folder(Operator):

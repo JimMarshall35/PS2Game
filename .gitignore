@@ -1,3 +1,4 @@
 tools/packer/build
-tools/texture_maker/uild
+tools/texture_maker/build
+tools/blender_exporter/__pycache__
 build
