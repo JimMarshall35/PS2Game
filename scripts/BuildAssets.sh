@@ -52,9 +52,9 @@ pushd "$(dirname "$(readlink -f "$0")")/.."
     done
 
 
-    # for manifest in "${!pak_files[@]}"; do
-    #     pak_file_output="${pak_files[$manifest]}"
-    #     echo "Making .pak file: $pak_file_output from manifest $manifest"
-    #     $packer -m "$manifest" -o "$pak_file_output"
-    # done
+    for manifest in "${!pak_files[@]}"; do
+        pak_file_output="${pak_files[$manifest]}"
+        echo "Making .pak file: $pak_file_output from manifest $manifest"
+        $packer -m "$manifest" -o "$pak_file_output"
+    done
 popd
